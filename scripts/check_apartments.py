@@ -8,7 +8,58 @@ from email.message import EmailMessage
 import requests
 from bs4 import BeautifulSoup
 
+def send_email(subject, message):
 
+    msg = EmailMessage()
+
+    msg["Subject"] = subject
+
+    msg["From"] = os.environ["GMAIL_USER"]
+
+    msg["To"] = "bkdargan@gmail.com"
+
+    msg.set_content(message)
+
+    with smtplib.SMTP_SSL(
+        "smtp.gmail.com",
+        465
+    ) as smtp:
+
+        smtp.login(
+            os.environ["GMAIL_USER"],
+            os.environ["GMAIL_APP_PASSWORD"]
+        )
+
+        smtp.send_message(msg)
+
+    print("✅ Email Sent")
+
+
+def send_text(message):
+
+    msg = EmailMessage()
+
+    msg["Subject"] = ""
+
+    msg["From"] = os.environ["GMAIL_USER"]
+
+    msg["To"] = "9198100874@vtext.com"
+
+    msg.set_content(message)
+
+    with smtplib.SMTP_SSL(
+        "smtp.gmail.com",
+        465
+    ) as smtp:
+
+        smtp.login(
+            os.environ["GMAIL_USER"],
+            os.environ["GMAIL_APP_PASSWORD"]
+        )
+
+        smtp.send_message(msg)
+
+    print("✅ Text Sent")
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 "
@@ -317,7 +368,16 @@ if previous_total is not None:
 # SEND TEXT EVERY RUN
 #
 
-send_text(report_text)
+send_email(
+    f"Link Linden Availability - {current_total} Available",
+    report_text
+)
+
+send_text(
+    f"🏠 Link Linden Update\n\n"
+    f"Total Available: {current_total}\n\n"
+    f"See email for full report."
+)
 
 with open(
     "previous_count.json",
