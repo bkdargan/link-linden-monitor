@@ -1,8 +1,13 @@
 import json
+import os
 import re
+import smtplib
+from datetime import datetime
+from email.message import EmailMessage
+
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+
 
 HEADERS = {
     "User-Agent": (
@@ -11,11 +16,9 @@ HEADERS = {
         "AppleWebKit/537.36 "
         "(KHTML, like Gecko) "
         "Chrome/128.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Referer": "https://www.google.com/"
+    )
 }
+
 
 FLOORPLANS = {
     "B1": {
@@ -40,6 +43,40 @@ FLOORPLANS = {
     }
 }
 
+
+def send_text(message):
+
+    try:
+
+        msg = EmailMessage()
+
+        msg["Subject"] = ""
+
+        msg["From"] = os.environ["GMAIL_USER"]
+
+        msg["To"] = "9198100874@vtext.com"
+
+        msg.set_content(message)
+
+        with smtplib.SMTP_SSL(
+            "smtp.gmail.com",
+            465
+        ) as smtp:
+
+            smtp.login(
+                os.environ["GMAIL_USER"],
+                os.environ["GMAIL_APP_PASSWORD"]
+            )
+
+            smtp.send_message(msg)
+
+        print("✅ Text Sent")
+
+    except Exception as e:
+
+        print(f"❌ Text Failed: {e}")
+
+
 all_results = []
 
 for plan_name, details in FLOORPLANS.items():
@@ -61,61 +98,58 @@ for plan_name, details in FLOORPLANS.items():
 
         response.raise_for_status()
 
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+        text = soup.get_text("\n")
+
+        apartments = []
+
+        pattern = re.compile(
+            r"Apartment:\s*#\s*(\d+).*?"
+            r"(Available Now|Date Available:\s*[^\n]+).*?"
+            r"Starting at:\s*\$([0-9,\.]+)",
+            re.DOTALL
+        )
+
+        for match in pattern.finditer(text):
+
+            apartments.append(
+                {
+                    "unit": match.group(1),
+                    "availability": match.group(2).strip(),
+                    "rent": match.group(3).strip()
+                }
+            )
+
+        all_results.append(
+            {
+                "floorplan": plan_name,
+                "url": url,
+                "bedrooms": details["bedrooms"],
+                "bathrooms": details["bathrooms"],
+                "count": len(apartments),
+                "apartments": apartments
+            }
+        )
+
     except Exception as e:
 
         print(f"ERROR: {e}")
 
-        all_results.append({
-            "floorplan": plan_name,
-            "url": url,
-            "bedrooms": details["bedrooms"],
-            "bathrooms": details["bathrooms"],
-            "count": 0,
-            "apartments": []
-        })
-
-        continue
-
-    soup = BeautifulSoup(
-        response.text,
-        "html.parser"
-    )
-
-    text = soup.get_text("\n")
-
-    apartments = []
-
-    pattern = re.compile(
-        r"Apartment:\s*#\s*(\d+).*?"
-        r"(Available Now|Date Available:\s*[^\n]+).*?"
-        r"Starting at:\s*\$([0-9,\.]+)",
-        re.DOTALL
-    )
-
-    for match in pattern.finditer(text):
-
-        apartments.append(
+        all_results.append(
             {
-                "unit": match.group(1),
-                "availability": match.group(2).strip(),
-                "rent": match.group(3).strip()
+                "floorplan": plan_name,
+                "url": url,
+                "bedrooms": details["bedrooms"],
+                "bathrooms": details["bathrooms"],
+                "count": 0,
+                "apartments": []
             }
         )
 
-    all_results.append(
-        {
-            "floorplan": plan_name,
-            "url": url,
-            "bedrooms": details["bedrooms"],
-            "bathrooms": details["bathrooms"],
-            "count": len(apartments),
-            "apartments": apartments
-        }
-    )
-
-#
-# SAVE JSON REPORT
-#
 
 report = {
     "timestamp": datetime.now().isoformat(),
@@ -133,16 +167,13 @@ with open(
         indent=2
     )
 
-#
-# CONSOLE REPORT
-#
+
+grand_total = 0
 
 print()
 print("=" * 70)
 print("LINK LINDEN AVAILABILITY REPORT")
 print("=" * 70)
-
-grand_total = 0
 
 for plan in all_results:
 
@@ -159,13 +190,7 @@ for plan in all_results:
         f"Available Units: {plan['count']}"
     )
 
-    print(
-        f"Quick Check: {plan['url']}"
-    )
-
-    print()
-
-    for apartment in plan["apartments"]:
+    for apartment in plan["apartments"\]:
 
         print(
             f"  Unit #{apartment['unit']}"
@@ -183,15 +208,12 @@ for plan in all_results:
 
         print()
 
+print()
 print("=" * 70)
 print(
     f"TOTAL AVAILABLE APARTMENTS: {grand_total}"
 )
 print("=" * 70)
-
-#
-# TRACK CHANGES
-#
 
 current_total = grand_total
 
@@ -200,45 +222,43 @@ previous_total = None
 try:
 
     with open(
-        "previous_count.json",
+        "previous_ount.json",
         "r"
     ) as f:
 
-        previous_total = json.load(f).get(
-            "available_count"
+        previous_total = (
+            json.load(f)
+            .get("available_count")
         )
 
 except Exception:
     pass
 
-if previous_total is not None:
 
-    print()
-    print(
-        f"Previous Total: {previous_total}"
+report_text = ""
+report_text += "🏠 Link Linden Update\n\n"
+report_text += f"Total Available: {current_total}\n\n"
+
+for plan in all_results:
+
+    report_text += (
+        f"{plan['floorplan']} "
+        f"({plan['bedrooms']}bd/"
+        f"{plan['bathrooms']}ba)"
+        f": {plan['count']}\n"
     )
 
-    print(
-        f"Current Total: {current_total}"
-    )
+report_text += (
+    "\nQuick Check:\n"
+    "https://www.linklinden.com/floorplans/b1"
+)
 
-    delta = current_total - previous_total
+#
+# TEST MODE
+# SEND TEXT EVERY RUN
+#
 
-    if delta > 0:
-
-        print(
-            f"🚨 {delta} NEW APARTMENT(S) AVAILABLE"
-        )
-
-    elif delta < 0:
-
-        print(
-            f"📉 {abs(delta)} APARTMENT(S) NO LONGER AVAILABLE"
-        )
-
-    else:
-
-        print("✅ No Change")
+send_text(report_text)
 
 with open(
     "previous_count.json",
