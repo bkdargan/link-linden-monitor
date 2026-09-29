@@ -4,8 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-URL = "https://www.linklinden.com/floorplans/b1"
-
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 "
@@ -19,62 +17,109 @@ HEADERS = {
     "Referer": "https://www.google.com/"
 }
 
-response = requests.get(
-    URL,
-    headers=HEADERS,
-    timeout=30
-)
+FLOORPLANS = {
+    "B1": {
+        "url": "https://www.linklinden.com/floorplans/b1",
+        "bedrooms": 2,
+        "bathrooms": 2
+    },
+    "B2": {
+        "url": "https://www.linklinden.com/floorplans/b2",
+        "bedrooms": 2,
+        "bathrooms": 2
+    },
+    "B3": {
+        "url": "https://www.linklinden.com/floorplans/b3",
+        "bedrooms": 2,
+        "bathrooms": 2
+    },
+    "B1-A": {
+        "url": "https://www.linklinden.com/floorplans/b1-a",
+        "bedrooms": 2,
+        "bathrooms": 2
+    }
+}
 
-response.raise_for_status()
+all_results = []
 
-soup = BeautifulSoup(
-    response.text,
-    "html.parser"
-)
+for plan_name, details in FLOORPLANS.items():
 
-text = soup.get_text("\n")
+    url = details["url"]
+
+    print()
+    print("=" * 60)
+    print(f"CHECKING {plan_name}")
+    print("=" * 60)
+
+    try:
+
+        response = requests.get(
+            url,
+            headers=HEADERS,
+            timeout=30
+        )
+
+        response.raise_for_status()
+
+    except Exception as e:
+
+        print(f"ERROR: {e}")
+
+        all_results.append({
+            "floorplan": plan_name,
+            "url": url,
+            "bedrooms": details["bedrooms"],
+            "bathrooms": details["bathrooms"],
+            "count": 0,
+            "apartments": []
+        })
+
+        continue
+
+    soup = BeautifulSoup(
+        response.text,
+        "html.parser"
+    )
+
+    text = soup.get_text("\n")
+
+    apartments = []
+
+    pattern = re.compile(
+        r"Apartment:\s*#\s*(\d+).*?"
+        r"(Available Now|Date Available:\s*[^\n]+).*?"
+        r"Starting at:\s*\$([0-9,\.]+)",
+        re.DOTALL
+    )
+
+    for match in pattern.finditer(text):
+
+        apartments.append(
+            {
+                "unit": match.group(1),
+                "availability": match.group(2).strip(),
+                "rent": match.group(3).strip()
+            }
+        )
+
+    all_results.append(
+        {
+            "floorplan": plan_name,
+            "url": url,
+            "bedrooms": details["bedrooms"],
+            "bathrooms": details["bathrooms"],
+            "count": len(apartments),
+            "apartments": apartments
+        }
+    )
 
 #
-# SAVE RAW TEXT FOR DEBUGGING
-#
-
-with open(
-    "page_dump.txt",
-    "w",
-    encoding="utf-8"
-) as f:
-    f.write(text)
-
-#
-# FIND APARTMENTS
-#
-
-apartments = []
-
-pattern = re.compile(
-    r"Apartment:\s*#\s*(\d+).*?"
-    r"(Available Now|Date Available:\s*[^\n]+).*?"
-    r"Starting at:\s*\$([0-9,\.]+)",
-    re.DOTALL
-)
-
-for match in pattern.finditer(text):
-
-    apartments.append({
-        "unit": match.group(1),
-        "availability": match.group(2).strip(),
-        "rent": match.group(3).strip()
-    })
-
-#
-# REPORT
+# SAVE JSON REPORT
 #
 
 report = {
     "timestamp": datetime.now().isoformat(),
-    "available_count": len(apartments),
-    "url": URL,
-    "apartments": apartments
+    "floorplans": all_results
 }
 
 with open(
@@ -93,30 +138,64 @@ with open(
 #
 
 print()
-print("=" * 60)
-print("LINK LINDEN B1 REPORT")
-print("=" * 60)
+print("=" * 70)
+print("LINK LINDEN AVAILABILITY REPORT")
+print("=" * 70)
 
-print()
-print(f"Available Units: {len(apartments)}")
-print()
+grand_total = 0
 
-for unit in apartments:
+for plan in all_results:
 
-    print(f"🏠 Unit #{unit['unit']}")
-    print(f"📅 {unit['availability']}")
-    print(f"💲 {unit['rent']}")
+    grand_total += plan["count"]
+
+    print()
+    print(
+        f"🏠 {plan['floorplan']} "
+        f"({plan['bedrooms']} Bed / "
+        f"{plan['bathrooms']} Bath)"
+    )
+
+    print(
+        f"Available Units: {plan['count']}"
+    )
+
+    print(
+        f"Quick Check: {plan['url']}"
+    )
+
     print()
 
-print("Quick Check:")
-print(URL)
-print()
+    for apartment in plan["apartments"\]:
+
+        print(
+            f"  Unit #{apartment['unit']}"
+        )
+
+        print(
+            f"  Availability: "
+            f"{apartment['availability']}"
+        )
+
+        print(
+            f"  Rent: "
+            f"${apartment['rent']}"
+        )
+
+        print()
+
+print("=" * 70)
+print(
+    f"TOTAL AVAILABLE APARTMENTS: {grand_total}"
+)
+print("=" * 70)
 
 #
-# CHANGE DETECTION
+# TRACK CHANGES
 #
 
-previous_count = None
+current_total = grand_total
+
+previous_total = None
 
 try:
 
@@ -125,47 +204,41 @@ try:
         "r"
     ) as f:
 
-        previous = json.load(f)
-
-        previous_count = previous.get(
+        previous_total = json.load(f).get(
             "available_count"
         )
 
 except Exception:
     pass
 
-if previous_count is not None:
+if previous_total is not None:
 
-    delta = (
-        len(apartments)
-        - previous_count
+    print()
+    print(
+        f"Previous Total: {previous_total}"
     )
 
     print(
-        f"Previous Count: {previous_count}"
+        f"Current Total: {current_total}"
     )
 
-    print(
-        f"Current Count: {len(apartments)}"
-    )
+    delta = current_total - previous_total
 
     if delta > 0:
 
         print(
-            f"🚨 {delta} NEW UNIT(S) AVAILABLE"
+            f"🚨 {delta} NEW APARTMENT(S) AVAILABLE"
         )
 
     elif delta < 0:
 
         print(
-            f"📉 {abs(delta)} UNIT(S) REMOVED"
+            f"📉 {abs(delta)} APARTMENT(S) NO LONGER AVAILABLE"
         )
 
     else:
 
-        print(
-            "✅ No Change"
-        )
+        print("✅ No Change")
 
 with open(
     "previous_count.json",
@@ -174,7 +247,7 @@ with open(
 
     json.dump(
         {
-            "available_count": len(apartments)
+            "available_count": current_total
         },
         f,
         indent=2
