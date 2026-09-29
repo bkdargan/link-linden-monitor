@@ -1,7 +1,12 @@
 {
+  "timestamp": "2026-09-29T20:00:58.706871",
   "available_count": 1,
-  "units": [
-    "201"
-  ],
-  "url": "https://www.linklinden.com/floorplans/b1"
+  "url": "https://www.linklinden.com/floorplans/b1",
+  "apartments": [
+    {
+      "unit": "201",
+      "availability": "Available Now",
+      "rent": "1,986.00"
+    }
+  ]
 }
