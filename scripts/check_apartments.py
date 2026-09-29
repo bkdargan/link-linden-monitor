@@ -165,7 +165,7 @@ for plan in all_results:
 
     print()
 
-    for apartment in plan["apartments"\]:
+    for apartment in plan["apartments"]:
 
         print(
             f"  Unit #{apartment['unit']}"
