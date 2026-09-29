@@ -236,22 +236,81 @@ except Exception:
 
 
 report_text = ""
-report_text += "🏠 Link Linden Update\n\n"
-report_text += f"Total Available: {current_total}\n\n"
+
+report_text += (
+    "LINK LINDEN AVAILABILITY REPORT\n"
+)
+
+report_text += (
+    "=============================\n\n"
+)
 
 for plan in all_results:
 
     report_text += (
         f"{plan['floorplan']} "
-        f"({plan['bedrooms']}bd/"
-        f"{plan['bathrooms']}ba)"
-        f": {plan['count']}\n"
+        f"({plan['bedrooms']} Bed / "
+        f"{plan['bathrooms']} Bath)\n"
     )
 
+    report_text += (
+        f"Available Units: {plan['count']}\n"
+    )
+
+    report_text += (
+        f"URL: {plan['url']}\n"
+    )
+
+    for apartment in plan["apartments"\]:
+
+        report_text += (
+            f"\nUnit #{apartment['unit']}\n"
+        )
+
+        report_text += (
+            f"{apartment['availability']}\n"
+        )
+
+        report_text += (
+            f"${apartment['rent']}\n"
+        )
+
+    report_text += "\n"
+
 report_text += (
-    "\nQuick Check:\n"
-    "https://www.linklinden.com/floorplans/b1"
+    f"\nTOTAL AVAILABLE APARTMENTS: "
+    f"{current_total}\n"
 )
+
+if previous_total is not None:
+
+    report_text += (
+        f"\nPrevious Total: {previous_total}\n"
+    )
+
+    report_text += (
+        f"Current Total: {current_total}\n"
+    )
+
+    delta = current_total - previous_total
+
+    if delta > 0:
+
+        report_text += (
+            f"🚨 {delta} NEW APARTMENT(S) AVAILABLE\n"
+        )
+
+    elif delta < 0:
+
+        report_text += (
+            f"📉 {abs(delta)} APARTMENT(S) REMOVED\n"
+        )
+
+    else:
+
+        report_text += (
+            "✅ NO CHANGE\n"
+        )
 
 #
 # TEST MODE
