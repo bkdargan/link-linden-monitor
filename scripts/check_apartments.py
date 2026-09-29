@@ -261,7 +261,7 @@ for plan in all_results:
         f"URL: {plan['url']}\n"
     )
 
-    for apartment in plan["apartments"\]:
+    for apartment in plan["apartments"]:
 
         report_text += (
             f"\nUnit #{apartment['unit']}\n"
