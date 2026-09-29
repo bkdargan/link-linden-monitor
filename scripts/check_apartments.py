@@ -190,7 +190,7 @@ for plan in all_results:
         f"Available Units: {plan['count']}"
     )
 
-    for apartment in plan["apartments"\]:
+    for apartment in plan["apartments"]:
 
         print(
             f"  Unit #{apartment['unit']}"
