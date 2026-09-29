@@ -1,12 +1,71 @@
 {
-  "timestamp": "2026-09-29T20:00:58.706871",
-  "available_count": 1,
-  "url": "https://www.linklinden.com/floorplans/b1",
-  "apartments": [
+  "timestamp": "2026-09-29T20:11:11.032335",
+  "floorplans": [
     {
-      "unit": "201",
-      "availability": "Available Now",
-      "rent": "1,986.00"
+      "floorplan": "B1",
+      "url": "https://www.linklinden.com/floorplans/b1",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "count": 1,
+      "apartments": [
+        {
+          "unit": "201",
+          "availability": "Available Now",
+          "rent": "1,986.00"
+        }
+      ]
+    },
+    {
+      "floorplan": "B2",
+      "url": "https://www.linklinden.com/floorplans/b2",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "count": 2,
+      "apartments": [
+        {
+          "unit": "356",
+          "availability": "Available Now",
+          "rent": "2,100.00"
+        },
+        {
+          "unit": "112",
+          "availability": "Available Now",
+          "rent": "2,194.00"
+        }
+      ]
+    },
+    {
+      "floorplan": "B3",
+      "url": "https://www.linklinden.com/floorplans/b3",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "count": 2,
+      "apartments": [
+        {
+          "unit": "562",
+          "availability": "Available Now",
+          "rent": "1,770.00"
+        },
+        {
+          "unit": "261",
+          "availability": "Available Now",
+          "rent": "1,785.00"
+        }
+      ]
+    },
+    {
+      "floorplan": "B1-A",
+      "url": "https://www.linklinden.com/floorplans/b1-a",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "count": 1,
+      "apartments": [
+        {
+          "unit": "245",
+          "availability": "Date Available: \n 10/8/2026",
+          "rent": "1,798.00"
+        }
+      ]
     }
   ]
 }
