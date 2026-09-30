@@ -9,6 +9,12 @@
     },
     {
       "floorplan": "B2",
+      "unit": "356",
+      "rent": "2,100.00",
+      "availability": "Available Now"
+    },
+    {
+      "floorplan": "B2",
       "unit": "112",
       "rent": "2,194.00",
       "availability": "Available Now"
