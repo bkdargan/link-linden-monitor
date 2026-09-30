@@ -341,23 +341,29 @@ if previous_total is not None:
 
     delta = current_total - previous_total
 
-    if delta > 0:
+if added_units:
 
+    report_text += "\n🚨 NEWLY ADDED UNITS\n"
+
+    for unit in sorted(added_units):
+        floorplan, unit_num = unit.split(":")
         report_text += (
-            f"🚨 {delta} NEW APARTMENT(S) AVAILABLE\n"
+            f"  + {floorplan} Unit #{unit_num}\n"
         )
 
-    elif delta < 0:
+if removed_units:
 
+    report_text += "\n📉 REMOVED UNITS\n"
+
+    for unit in sorted(removed_units):
+        floorplan, unit_num = unit.split(":")
         report_text += (
-            f"📉 {abs(delta)} APARTMENT(S) REMOVED\n"
+            f"  - {floorplan} Unit #{unit_num}\n"
         )
 
-    else:
+if not added_units and not removed_units:
 
-        report_text += (
-            "✅ NO CHANGE\n"
-        )
+    report_text += "\n✅ NO CHANGE\n"
     current_unit_set = {
         f"{u['floorplan']}:{u['unit']}"
         for u in current_units
