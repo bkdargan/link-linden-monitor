@@ -272,15 +272,26 @@ previous_total = None
 
 try:
 
-    with open(
-        "previous_ount.json",
-        "r"
-    ) as f:
+current_units = []
 
-        previous_total = (
-            json.load(f)
-            .get("available_count")
-        )
+for plan in all_results:
+    for apartment in plan["apartments"\]:
+        current_units.append({
+            "floorplan": plan["floorplan"],
+            "unit": apartment["unit"],
+            "rent": apartment["rent"],
+            "availability": apartment["availability"]
+        })
+
+with open("previous_units.json", "w") as f:
+    json.dump(
+        {
+            "available_count": current_total,
+            "units": current_units
+        },
+        f,
+        indent=2
+    )
 
 except Exception:
     pass
