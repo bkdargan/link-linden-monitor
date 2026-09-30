@@ -1,4 +1,41 @@
 {
-  "available_count": 0,
-  "units": []
+  "available_count": 6,
+  "units": [
+    {
+      "floorplan": "B1",
+      "unit": "201",
+      "rent": "1,981.00",
+      "availability": "Available Now"
+    },
+    {
+      "floorplan": "B2",
+      "unit": "356",
+      "rent": "2,100.00",
+      "availability": "Available Now"
+    },
+    {
+      "floorplan": "B2",
+      "unit": "112",
+      "rent": "2,194.00",
+      "availability": "Available Now"
+    },
+    {
+      "floorplan": "B3",
+      "unit": "562",
+      "rent": "1,770.00",
+      "availability": "Available Now"
+    },
+    {
+      "floorplan": "B3",
+      "unit": "261",
+      "rent": "1,781.00",
+      "availability": "Available Now"
+    },
+    {
+      "floorplan": "B1-A",
+      "unit": "245",
+      "rent": "1,793.00",
+      "availability": "Date Available: \n 10/8/2026"
+    }
+  ]
 }
