@@ -269,29 +269,14 @@ print("=" * 70)
 current_total = grand_total
 
 previous_total = None
+previous_units = []
 
 try:
+    with open("previous_units.json", "r") as f:
+        previous_data = json.load(f)
 
-current_units = []
-
-for plan in all_results:
-    for apartment in plan["apartments"\]:
-        current_units.append({
-            "floorplan": plan["floorplan"],
-            "unit": apartment["unit"],
-            "rent": apartment["rent"],
-            "availability": apartment["availability"]
-        })
-
-with open("previous_units.json", "w") as f:
-    json.dump(
-        {
-            "available_count": current_total,
-            "units": current_units
-        },
-        f,
-        indent=2
-    )
+    previous_total = previous_data.get("available_count")
+    previous_units = previous_data.get("units", [])
 
 except Exception:
     pass
@@ -373,7 +358,18 @@ if previous_total is not None:
         report_text += (
             "✅ NO CHANGE\n"
         )
+    current_unit_set = {
+        f"{u['floorplan']}:{u['unit']}"
+        for u in current_units
+    }
 
+    previous_unit_set = {
+        f"{u['floorplan']}:{u['unit']}"
+        for u in previous_units
+    }
+
+added_units = current_unit_set - previous_unit_set
+removed_units = previous_unit_set - current_unit_set
 #
 # TEST MODE
 # SEND TEXT EVERY RUN
