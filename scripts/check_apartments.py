@@ -268,18 +268,55 @@ print("=" * 70)
 
 current_total = grand_total
 
+# Build current unit list
+current_units = []
+
+for plan in all_results:
+    for apartment in plan["apartments"\]:
+        current_units.append({
+            "floorplan": plan["floorplan"],
+            "unit": apartment["unit"],
+            "rent": apartment["rent"],
+            "availability": apartment["availability"]
+        })
+
+# Load previous snapshot
 previous_total = None
 previous_units = []
 
 try:
+
     with open("previous_units.json", "r") as f:
+
         previous_data = json.load(f)
 
-    previous_total = previous_data.get("available_count")
-    previous_units = previous_data.get("units", [])
+        previous_total = previous_data.get(
+            "available_count"
+        )
+
+        previous_units = previous_data.get(
+            "units",
+            []
+        )
 
 except Exception:
-    pass
+
+    previous_total = None
+    previous_units = []
+
+# Compare today's units to yesterday's
+current_unit_set = {
+    f"{u['floorplan']}:{u['unit']}"
+    for u in current_units
+}
+
+previous_unit_set = {
+    f"{u['floorplan']}:{u['unit']}"
+    for u in previous_units
+}
+
+added_units = current_unit_set - previous_unit_set
+removed_units = previous_unit_set - current_unit_set
 
 
 report_text = ""
@@ -339,16 +376,38 @@ if previous_total is not None:
         f"Current Total: {current_total}\n"
     )
 
-    delta = current_total - previous_total
+    if added_units:
 
-if added_units:
-
-    report_text += "\n🚨 NEWLY ADDED UNITS\n"
-
-    for unit in sorted(added_units):
-        floorplan, unit_num = unit.split(":")
         report_text += (
-            f"  + {floorplan} Unit #{unit_num}\n"
+            "\n🚨 NEWLY ADDED UNITS\n"
+        )
+
+        for unit in sorted(added_units):
+
+            floorplan, unit_num = unit.split(":")
+
+            report_text += (
+                f"  + {floorplan} Unit #{unit_num}\n"
+            )
+
+    if removed_units:
+
+        report_text += (
+            "\n📉 REMOVED UNITS\n"
+        )
+
+        for unit in sorted(removed_units):
+
+            floorplan, unit_num = unit.split(":")
+
+            report_text += (
+                f"  - {floorplan} Unit #{unit_num}\n"
+            )
+
+    if not added_units and not removed_units:
+
+        report_text += (
+            "\n✅ NO CHANGE\n"
         )
 
 if removed_units:
@@ -393,13 +452,14 @@ send_text(
 )
 
 with open(
-    "previous_count.json",
+    "previous_units.json",
     "w"
 ) as f:
 
     json.dump(
         {
-            "available_count": current_total
+            "available_count": current_total,
+            "units": current_units
         },
         f,
         indent=2
