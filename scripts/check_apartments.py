@@ -272,7 +272,7 @@ current_total = grand_total
 current_units = []
 
 for plan in all_results:
-    for apartment in plan["apartments"\]:
+    for apartment in plan["apartments"]:
         current_units.append({
             "floorplan": plan["floorplan"],
             "unit": apartment["unit"],
