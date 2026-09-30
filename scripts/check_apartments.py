@@ -317,7 +317,34 @@ previous_unit_set = {
 
 added_units = current_unit_set - previous_unit_set
 removed_units = previous_unit_set - current_unit_set
+# Detect price changes
 
+previous_lookup = {
+    f"{u['floorplan']}:{u['unit']}": u
+    for u in previous_units
+}
+
+current_lookup = {
+    f"{u['floorplan']}:{u['unit']}": u
+    for u in current_units
+}
+
+price_changes = []
+
+for key in current_unit_set & previous_unit_set:
+
+    old_rent = previous_lookup[key]["rent"]
+    new_rent = current_lookup[key]["rent"]
+
+    if old_rent != new_rent:
+
+        price_changes.append(
+            {
+                "key": key,
+                "old_rent": old_rent,
+                "new_rent": new_rent
+            }
+        )
 
 report_text = ""
 
@@ -404,11 +431,40 @@ if previous_total is not None:
                 f"  - {floorplan} Unit #{unit_num}\n"
             )
 
-    if not added_units and not removed_units:
+if price_changes:
+
+    report_text += (
+        "\n💰 PRICE CHANGES\n"
+    )
+
+    for change in sorted(
+        price_changes,
+        key=lambda x: x["key"]
+    ):
+
+        floorplan, unit_num = (
+            change["key"].split(":")
+        )
 
         report_text += (
-            "\n✅ NO CHANGE\n"
+            f"\n{floorplan} Unit #{unit_num}\n"
         )
+
+        report_text += (
+            f"   ${change['old_rent']} "
+            f"→ "
+            f"${change['new_rent']}\n"
+        )
+
+if (
+    not added_units
+    and not removed_units
+    and not price_changes
+):
+
+    report_text += (
+        "\n✅ NO CHANGE\n"
+    )
 
 if removed_units:
 
