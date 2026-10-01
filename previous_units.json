@@ -1,5 +1,5 @@
 {
-  "available_count": 6,
+  "available_count": 5,
   "units": [
     {
       "floorplan": "B1",
@@ -30,12 +30,6 @@
       "unit": "261",
       "rent": "1,781.00",
       "availability": "Available Now"
-    },
-    {
-      "floorplan": "B1-A",
-      "unit": "245",
-      "rent": "1,793.00",
-      "availability": "Date Available: \n 10/8/2026"
     }
   ]
 }

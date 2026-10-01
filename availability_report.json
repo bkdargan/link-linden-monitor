@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-30T20:30:11.599291",
+  "timestamp": "2026-10-01T02:21:12.745916",
   "floorplans": [
     {
       "floorplan": "B1",
@@ -58,14 +58,8 @@
       "url": "https://www.linklinden.com/floorplans/b1-a",
       "bedrooms": 2,
       "bathrooms": 2,
-      "count": 1,
-      "apartments": [
-        {
-          "unit": "245",
-          "availability": "Date Available: \n 10/8/2026",
-          "rent": "1,793.00"
-        }
-      ]
+      "count": 0,
+      "apartments": []
     }
   ]
 }
