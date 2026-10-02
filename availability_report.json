@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-01T18:00:45.143650",
+  "timestamp": "2026-10-02T17:27:31.674914",
   "floorplans": [
     {
       "floorplan": "B1",
@@ -11,7 +11,7 @@
         {
           "unit": "201",
           "availability": "Available Now",
-          "rent": "1,981.00"
+          "rent": "1,983.00"
         }
       ]
     },
@@ -49,7 +49,7 @@
         {
           "unit": "261",
           "availability": "Available Now",
-          "rent": "1,781.00"
+          "rent": "1,783.00"
         }
       ]
     },
